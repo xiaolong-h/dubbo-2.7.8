@@ -462,6 +462,7 @@ public class RegistryProtocol implements Protocol {
             }
         }
 
+        // cluster -> MockClusterWrapper(FailoverCluster)
         Cluster cluster = Cluster.getCluster(qs.get(CLUSTER_KEY));
         return doRefer(cluster, registry, type, url);
     }
@@ -483,6 +484,8 @@ public class RegistryProtocol implements Protocol {
         // 订阅
         directory.subscribe(toSubscribeUrl(subscribeUrl));
 
+        // 默认：FailoverCluster
+        // cluster -> MockClusterWrapper(FailoverClusterInvoker(directroy))
         Invoker<T> invoker = cluster.join(directory);
         List<RegistryProtocolListener> listeners = findRegistryProtocolListeners(url);
         if (CollectionUtils.isEmpty(listeners)) {

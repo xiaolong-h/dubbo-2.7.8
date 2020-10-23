@@ -372,6 +372,7 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 for (URL url : urls) {
                     // REF_PROTOCOL 是被3个Wrapper包装的 RegistryProtocol
                     invokers.add(REF_PROTOCOL.refer(interfaceClass, url));
+                    // 此时invokers 是 FailoverClusterInvoker(RegistryDirectory)
                     if (UrlUtils.isRegistry(url)) {
                         registryURL = url; // use last registry url
                     }
