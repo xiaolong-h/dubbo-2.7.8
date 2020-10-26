@@ -372,7 +372,8 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 for (URL url : urls) {
                     // REF_PROTOCOL 是被3个Wrapper包装的 RegistryProtocol
                     invokers.add(REF_PROTOCOL.refer(interfaceClass, url));
-                    // 此时invokers 是 FailoverClusterInvoker(RegistryDirectory)
+                    // 此时invokers -> FailoverClusterInvoker(RegistryDirectory)
+
                     if (UrlUtils.isRegistry(url)) {
                         registryURL = url; // use last registry url
                     }
@@ -382,6 +383,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                     String cluster = registryURL.getParameter(CLUSTER_KEY, ZoneAwareCluster.NAME);
                     // The invoker wrap sequence would be: ZoneAwareClusterInvoker(StaticDirectory) -> FailoverClusterInvoker(RegistryDirectory, routing happens here) -> Invoker
                     invoker = Cluster.getCluster(cluster, false).join(new StaticDirectory(registryURL, invokers));
+                    // 再包一层 ZoneAwareClusterInvoker(StaticDirectory(...))
+                    // 此时Invoker -> ZoneAwareClusterInvoker(StaticDirectory(FailoverClusterInvoker(RegistryDirectory)))
+
                 } else { // not a registry url, must be direct invoke.
                     String cluster = CollectionUtils.isNotEmpty(invokers)
                             ? (invokers.get(0).getUrl() != null ? invokers.get(0).getUrl().getParameter(CLUSTER_KEY, ZoneAwareCluster.NAME) : Cluster.DEFAULT)

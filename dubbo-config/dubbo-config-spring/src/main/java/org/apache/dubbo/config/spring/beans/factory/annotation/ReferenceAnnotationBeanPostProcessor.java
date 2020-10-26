@@ -141,6 +141,7 @@ public class ReferenceAnnotationBeanPostProcessor extends AbstractAnnotationBean
 
         cacheInjectedReferenceBean(referenceBean, injectedElement);
 
+        // 消费端启动入口
         return referenceBean.get();
     }
 

@@ -486,9 +486,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                             registryURL = registryURL.addParameter(PROXY_KEY, proxy);
                         }
 
+                        //ProxyFactory也是扩展点，默认是JavassistProxyFactory
+                        //此时PROXY_FACTORY 是 StubProxyFactoryWrapper(JavassistProxyFactory)
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(EXPORT_KEY, url.toFullString()));
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
+                        //所以此时PROTOCOL是包装后的扩展点 ProtocolListenerWrapper(ProtocolFilterWrapper(QosProtocolWrapper(RegistryProtocol)))
+                        //wrapper只是一个包装增强，所以最终调用的是 RegistryProtocol.export()方法
                         Exporter<?> exporter = PROTOCOL.export(wrapperInvoker);
                         exporters.add(exporter);
                     }

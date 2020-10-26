@@ -70,7 +70,8 @@ public class InvokerInvocationHandler implements InvocationHandler {
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
-
+        // 此时Invoker -> ZoneAwareClusterInvoker(StaticDirectory(FailoverClusterInvoker(RegistryDirectory)))
+        // 见 org.apache.dubbo.config.ReferenceConfig.createProxy(...)
         return invoker.invoke(rpcInvocation).recreate();
     }
 }

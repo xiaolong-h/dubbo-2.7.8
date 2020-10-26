@@ -208,7 +208,7 @@ public class RegistryProtocol implements Protocol {
 
         providerUrl = overrideUrlWithConfig(providerUrl, overrideSubscribeListener);
         //export invoker
-        //启动本地服务
+        //启动本地服务，dubbo的话，启动一个netty服务
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker, providerUrl);
 
         // url to registry
@@ -218,7 +218,7 @@ public class RegistryProtocol implements Protocol {
         // decide if we need to delay publish
         boolean register = providerUrl.getParameter(REGISTER_KEY, true);
         if (register) {
-            //在注册中心注册服务
+            //在注册中心注册服务，zookeeper的话，在zookeeper中添加个节点
             register(registryUrl, registeredProviderUrl);
         }
 
@@ -230,6 +230,8 @@ public class RegistryProtocol implements Protocol {
         exporter.setSubscribeUrl(overrideSubscribeUrl);
 
         // Deprecated! Subscribe to override rules in 2.6.x or before.
+        // 此时 registry = ZookeeperRegistry ，参见 register(registryUrl, registeredProviderUrl);
+        // 添加订阅、监听，当URL变化时，重新注册服务
         registry.subscribe(overrideSubscribeUrl, overrideSubscribeListener);
 
         notifyExport(exporter);
@@ -260,7 +262,7 @@ public class RegistryProtocol implements Protocol {
 
         return (ExporterChangeableWrapper<T>) bounds.computeIfAbsent(key, s -> {
             Invoker<?> invokerDelegate = new InvokerDelegate<>(originInvoker, providerUrl);
-            //动态字节码调用 protocol.export(...) ，根据协议名称获取扩展点，实际上调用的是DubboProtocol.export(...)
+            //动态字节码调用 protocol.export(...) ，根据协议名称获取扩展点，实际上调用的是 DubboProtocol.export(...)
             return new ExporterChangeableWrapper<>((Exporter<T>) protocol.export(invokerDelegate), originInvoker);
         });
     }
